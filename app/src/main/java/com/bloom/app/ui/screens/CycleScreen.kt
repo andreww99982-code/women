@@ -189,8 +189,24 @@ private fun CycleProgress(day: Int, length: Int) {
             val stroke = 18.dp.toPx()
             val arcSize = Size(size.width - stroke, size.height - stroke)
             val topLeft = Offset(stroke / 2, stroke / 2)
-            drawArc(MaterialTheme.colorScheme.surfaceVariant, -90f, 360f, false, Stroke(stroke, cap = StrokeCap.Round), topLeft, arcSize)
-            drawArc(MaterialTheme.colorScheme.primary, -90f, 360f * day / length, false, Stroke(stroke, cap = StrokeCap.Round), topLeft, arcSize)
+            drawArc(
+                color = MaterialTheme.colorScheme.surfaceVariant,
+                startAngle = -90f,
+                sweepAngle = 360f,
+                useCenter = false,
+                style = Stroke(stroke, cap = StrokeCap.Round),
+                topLeft = topLeft,
+                size = arcSize
+            )
+            drawArc(
+                color = MaterialTheme.colorScheme.primary,
+                startAngle = -90f,
+                sweepAngle = 360f * day / length,
+                useCenter = false,
+                style = Stroke(stroke, cap = StrokeCap.Round),
+                topLeft = topLeft,
+                size = arcSize
+            )
         }
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text("День $day", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
