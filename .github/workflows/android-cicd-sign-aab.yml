@@ -1,0 +1,66 @@
+name: Android CI/CD (Auto-Generate Key & Sign AAB)
+
+on:
+  push:
+    branches: [ "main" ] # Сработает при пуше в ветку main
+  workflow_dispatch: # Позволяет запустить агент вручную кнопкой в GitHub Actions
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: gradle
+
+    # 1. Генерируем новый Keystore-файл прямо на лету в агенте
+    # Внимание: для реального продакшена RuStore этот файл нужно будет сохранить,
+    # иначе при следующем запуске ключ будет другим, и обновление в RuStore не пройдёт.
+    # Пароль keystore берётся из GitHub Actions Secret (Settings -> Secrets and variables ->
+    # Actions -> New repository secret -> KEYSTORE_PASSWORD), а не хранится в коде workflow.
+    - name: Generate New Keystore
+      env:
+        KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+      run: |
+        keytool -genkeypair \
+          -v \
+          -keystore app/release-key.jks \
+          -alias my-key-alias \
+          -keyalg RSA \
+          -keysize 2048 \
+          -validity 10000 \
+          -storepass "$KEYSTORE_PASSWORD" \
+          -keypass "$KEYSTORE_PASSWORD" \
+          -dname "CN=MyCompany, OU=Dev, O=MyCompany, L=Moscow, S=Russia, C=RU"
+
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
+
+    # 2. Собираем и подписываем AAB сгенерированным ключом
+    - name: Build and Sign AAB
+      env:
+        KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+      run: |
+        STORE_PROP="android.injected.signing.store.password"
+        KEY_PROP="android.injected.signing.key.password"
+        ./gradlew bundleRelease \
+          -Pandroid.injected.signing.store.file=release-key.jks \
+          -P"$STORE_PROP"="$KEYSTORE_PASSWORD" \
+          -Pandroid.injected.signing.key.alias=my-key-alias \
+          -P"$KEY_PROP"="$KEYSTORE_PASSWORD"
+
+    # 3. Сохраняем подписанный AAB и САМ КЛЮЧ в артефакты (чтобы вы могли его скачать и не потерять)
+    - name: Upload Artifacts (AAB and Keystore)
+      uses: actions/upload-artifact@v4
+      with:
+        name: signed-android-assets
+        path: |
+          app/build/outputs/bundle/release/*.aab
+          app/release-key.jks
