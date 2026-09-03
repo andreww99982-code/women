@@ -224,7 +224,7 @@ private fun MetricProgress(label: String, value: Int, goal: Int, unit: String) {
 private fun MacroInputField(label: String, value: String, onValueChange: (String) -> Unit, modifier: Modifier) {
     OutlinedTextField(
         value = value,
-        onValueChange = { input -> onValueChange(input.filter(Char::isDigit).take(4)) },
+        onValueChange = { input -> onValueChange(input.filter { it.isDigit() }.take(4)) },
         label = { Text(label) },
         singleLine = true,
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
