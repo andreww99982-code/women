@@ -8,6 +8,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Restaurant
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -27,6 +28,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.bloom.app.ui.screens.AffirmationsScreen
 import com.bloom.app.ui.screens.CycleScreen
+import com.bloom.app.ui.screens.DietScreen
 import com.bloom.app.ui.screens.HabitsScreen
 import com.bloom.app.ui.screens.JournalScreen
 import com.bloom.app.ui.theme.BloomTheme
@@ -50,6 +52,7 @@ private val navItems = listOf(
     NavItem("journal", "Дневник", Icons.Filled.Favorite),
     NavItem("habits", "Привычки", Icons.Filled.CheckCircle),
     NavItem("cycle", "Цикл", Icons.Filled.DateRange),
+    NavItem("diet", "Питание", Icons.Filled.Restaurant),
     NavItem("affirmations", "Вдохновение", Icons.Filled.Star)
 )
 
@@ -90,6 +93,7 @@ fun BloomApp() {
             composable("journal") { JournalScreen() }
             composable("habits") { HabitsScreen() }
             composable("cycle") { CycleScreen() }
+            composable("diet") { DietScreen() }
             composable("affirmations") { AffirmationsScreen() }
         }
     }
