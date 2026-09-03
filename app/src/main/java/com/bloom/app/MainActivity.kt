@@ -53,7 +53,7 @@ private val navItems = listOf(
     NavItem("habits", "Привычки", Icons.Filled.CheckCircle),
     NavItem("cycle", "Цикл", Icons.Filled.DateRange),
     NavItem("diet", "Питание", Icons.Filled.Restaurant),
-    NavItem("affirmations", "Вдохновение", Icons.Filled.Star)
+    NavItem("affirmations", "Фразы", Icons.Filled.Star)
 )
 
 @Composable

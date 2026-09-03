@@ -42,6 +42,7 @@ import androidx.compose.ui.unit.dp
 import com.bloom.app.ui.theme.LavenderContainer
 import com.bloom.app.ui.theme.MintContainer
 import com.bloom.app.ui.theme.PinkPrimaryContainer
+import com.bloom.app.ui.theme.TextDark
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -232,6 +233,7 @@ private fun CycleCalendar(
                                     modifier = Modifier.size(32.dp).clip(CircleShape).background(color)
                                         .then(if (timestamp == today) Modifier.border(1.dp, MaterialTheme.colorScheme.onSurface, CircleShape) else Modifier)
                                         .padding(top = 7.dp),
+                                    color = if (color == Color.Transparent) MaterialTheme.colorScheme.onSurface else TextDark,
                                     textAlign = TextAlign.Center,
                                     style = MaterialTheme.typography.bodySmall
                                 )
