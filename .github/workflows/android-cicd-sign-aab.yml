@@ -88,10 +88,11 @@ jobs:
       env:
         KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
       run: |
+        KEYSTORE_FILE="$GITHUB_WORKSPACE/release-key.jks"
         STORE_PROP="android.injected.signing.store.password"
         KEY_PROP="android.injected.signing.key.password"
         gradle bundleRelease \
-          -Pandroid.injected.signing.store.file=release-key.jks \
+          -Pandroid.injected.signing.store.file="$KEYSTORE_FILE" \
           -P"$STORE_PROP"="$KEYSTORE_PASSWORD" \
           -Pandroid.injected.signing.key.alias=my-key-alias \
           -P"$KEY_PROP"="$KEYSTORE_PASSWORD"
