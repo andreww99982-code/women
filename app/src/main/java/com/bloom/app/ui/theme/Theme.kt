@@ -12,7 +12,7 @@ import androidx.compose.ui.unit.sp
 
 private val LightColors = lightColorScheme(
     primary = PinkPrimary,
-    onPrimary = SurfaceSoft,
+    onPrimary = TextDark,
     primaryContainer = PinkPrimaryContainer,
     onPrimaryContainer = TextDark,
     secondary = LavenderSecondary,

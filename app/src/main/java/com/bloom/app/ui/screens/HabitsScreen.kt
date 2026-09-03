@@ -63,6 +63,16 @@ fun HabitsScreen() {
             style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.Bold
         )
+        Spacer(Modifier.height(8.dp))
+        Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)) {
+            Column(Modifier.padding(12.dp)) {
+                Text("Как это работает", fontWeight = FontWeight.Bold)
+                Text(
+                    "Кружок слева — отметка на сегодня. Для полезной привычки это «сделала», для вредной — «день без неё». Серия показывает, сколько дней подряд получилось.",
+                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                )
+            }
+        }
         Spacer(Modifier.height(12.dp))
 
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -70,6 +80,7 @@ fun HabitsScreen() {
                 value = newHabitText,
                 onValueChange = { newHabitText = it },
                 label = { Text("Новая привычка") },
+                supportingText = { Text("Например: пить воду или не курить") },
                 modifier = Modifier.weight(1f)
             )
             Spacer(Modifier.width(8.dp))
@@ -90,7 +101,7 @@ fun HabitsScreen() {
 
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
-                "Вредная привычка",
+                if (newHabitIsHarmful) "Цель — избегать привычку" else "Цель — выполнять привычку",
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.weight(1f)
             )
@@ -128,7 +139,7 @@ fun HabitsScreen() {
                     ) {
                         Icon(
                             imageVector = if (doneToday) Icons.Filled.CheckCircle else Icons.Filled.RadioButtonUnchecked,
-                            contentDescription = "Статус",
+                            contentDescription = if (doneToday) "Сегодня отмечено" else "Отметить сегодня",
                             tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier
                                 .graphicsLayer(scaleX = scale, scaleY = scale)
@@ -156,7 +167,7 @@ fun HabitsScreen() {
                         Column(modifier = Modifier.weight(1f)) {
                             Text(habit.title, fontWeight = FontWeight.Medium)
                             Text(
-                                if (habit.isHarmful) "Вредная привычка" else "Полезная привычка",
+                                if (habit.isHarmful) "Вредная: отмечай дни без неё" else "Полезная: отмечай выполнение",
                                 style = MaterialTheme.typography.labelSmall,
                                 color = if (habit.isHarmful)
                                     MaterialTheme.colorScheme.error
@@ -165,11 +176,16 @@ fun HabitsScreen() {
                             )
                             AnimatedContent(targetState = habit.streak, label = "streakCount") { streak ->
                                 Text(
-                                    "Серия: $streak \uD83D\uDD25",
+                                    if (habit.isHarmful) "Дней подряд без привычки: $streak" else "Дней подряд выполнено: $streak",
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
+                            Text(
+                                if (doneToday) "Сегодня уже отмечено" else "Нажми кружок, когда цель на сегодня выполнена",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
                         }
                         IconButton(onClick = { scope.launch { db.habitDao().delete(habit) } }) {
                             Icon(Icons.Filled.Delete, contentDescription = "Удалить")
