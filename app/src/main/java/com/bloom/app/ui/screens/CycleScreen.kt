@@ -260,8 +260,8 @@ private fun Legend(color: Color, label: String) {
 }
 
 private fun dayColor(day: Long, periods: List<PeriodRecord>, cycleStart: Long, cycleLength: Int, fertileStart: Int, fertileEnd: Int): Color {
-    if (periods.any { day >= it.start && day <= (it.end ?: System.currentTimeMillis()) }) return PinkPrimaryContainer
-    val cycleDay = (TimeUnit.MILLISECONDS.toDays(day - cycleStart).toInt().floorMod(cycleLength)) + 1
+    if (periods.any { day >= it.start && day <= (it.end ?: dayStart(System.currentTimeMillis())) }) return PinkPrimaryContainer
+    val cycleDay = Math.floorMod(TimeUnit.MILLISECONDS.toDays(day - cycleStart).toInt(), cycleLength) + 1
     return when {
         cycleDay in 1..PREDICTED_PERIOD_DAYS -> PinkPrimaryContainer.copy(alpha = 0.45f)
         cycleDay == fertileEnd - 1 -> MintContainer
