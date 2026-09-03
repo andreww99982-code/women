@@ -8,5 +8,10 @@ data class Habit(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val title: String,
     val streak: Int = 0,
-    val lastCompletedDate: Long? = null
+    val lastCompletedDate: Long? = null,
+    /**
+     * true — вредная привычка (например, курение), которую нужно избегать;
+     * false — полезная привычка, которую нужно выполнять.
+     */
+    val isHarmful: Boolean = false
 )

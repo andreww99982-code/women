@@ -27,6 +27,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -54,6 +55,7 @@ fun HabitsScreen() {
     val habits by db.habitDao().getAll().collectAsState(initial = emptyList())
 
     var newHabitText by remember { mutableStateOf("") }
+    var newHabitIsHarmful by remember { mutableStateOf(false) }
 
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
         Text(
@@ -74,13 +76,28 @@ fun HabitsScreen() {
             IconButton(onClick = {
                 if (newHabitText.isNotBlank()) {
                     scope.launch {
-                        db.habitDao().insert(Habit(title = newHabitText))
+                        db.habitDao().insert(
+                            Habit(title = newHabitText, isHarmful = newHabitIsHarmful)
+                        )
                         newHabitText = ""
+                        newHabitIsHarmful = false
                     }
                 }
             }) {
                 Icon(Icons.Filled.Add, contentDescription = "Добавить")
             }
+        }
+
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                "Вредная привычка",
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.weight(1f)
+            )
+            Switch(
+                checked = newHabitIsHarmful,
+                onCheckedChange = { newHabitIsHarmful = it }
+            )
         }
 
         Spacer(Modifier.height(16.dp))
@@ -117,12 +134,18 @@ fun HabitsScreen() {
                                 .graphicsLayer(scaleX = scale, scaleY = scale)
                                 .clickable {
                                     scope.launch {
-                                        val today = System.currentTimeMillis()
-                                        if (!doneToday) {
+                                        if (doneToday) {
+                                            db.habitDao().update(
+                                                habit.copy(
+                                                    streak = (habit.streak - 1).coerceAtLeast(0),
+                                                    lastCompletedDate = null
+                                                )
+                                            )
+                                        } else {
                                             db.habitDao().update(
                                                 habit.copy(
                                                     streak = habit.streak + 1,
-                                                    lastCompletedDate = today
+                                                    lastCompletedDate = System.currentTimeMillis()
                                                 )
                                             )
                                         }
@@ -132,6 +155,14 @@ fun HabitsScreen() {
                         Spacer(Modifier.width(12.dp))
                         Column(modifier = Modifier.weight(1f)) {
                             Text(habit.title, fontWeight = FontWeight.Medium)
+                            Text(
+                                if (habit.isHarmful) "Вредная привычка" else "Полезная привычка",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = if (habit.isHarmful)
+                                    MaterialTheme.colorScheme.error
+                                else
+                                    MaterialTheme.colorScheme.primary
+                            )
                             AnimatedContent(targetState = habit.streak, label = "streakCount") { streak ->
                                 Text(
                                     "Серия: $streak \uD83D\uDD25",
