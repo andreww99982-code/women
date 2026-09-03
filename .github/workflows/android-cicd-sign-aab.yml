@@ -74,7 +74,7 @@ jobs:
       run: |
         keytool -genkeypair \
           -v \
-          -keystore app/release-key.jks \
+          -keystore release-key.jks \
           -alias my-key-alias \
           -keyalg RSA \
           -keysize 2048 \
@@ -91,7 +91,7 @@ jobs:
         STORE_PROP="android.injected.signing.store.password"
         KEY_PROP="android.injected.signing.key.password"
         gradle bundleRelease \
-          -Pandroid.injected.signing.store.file=app/release-key.jks \
+          -Pandroid.injected.signing.store.file=release-key.jks \
           -P"$STORE_PROP"="$KEYSTORE_PASSWORD" \
           -Pandroid.injected.signing.key.alias=my-key-alias \
           -P"$KEY_PROP"="$KEYSTORE_PASSWORD"
@@ -103,4 +103,4 @@ jobs:
         name: signed-android-assets
         path: |
           app/build/outputs/bundle/release/*.aab
-          app/release-key.jks
+          release-key.jks
