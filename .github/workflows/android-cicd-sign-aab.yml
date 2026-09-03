@@ -13,14 +13,55 @@ jobs:
 
     steps:
     - name: Checkout Code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
 
     - name: Set up JDK 17
-      uses: actions/setup-java@v4
+      uses: actions/setup-java@v5
       with:
         java-version: '17'
         distribution: 'temurin'
         cache: gradle
+
+    - name: Set up Android SDK
+      uses: android-actions/setup-android@v4
+
+    - name: Set up Gradle
+      uses: gradle/actions/setup-gradle@v6
+      with:
+        gradle-version: 8.7
+        cache-disabled: true
+
+    - name: Check keystore password
+      env:
+        KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+      run: |
+        if [ -z "${KEYSTORE_PASSWORD:-}" ]; then
+          {
+            echo "## Нужно добавить пароль для подписи AAB"
+            echo ""
+            echo "1. Откройте репозиторий на GitHub."
+            echo "2. Перейдите в **Settings → Secrets and variables → Actions**."
+            echo "3. Нажмите **New repository secret**."
+            echo "4. В поле **Name** укажите: \`KEYSTORE_PASSWORD\`."
+            echo "5. В поле **Secret** укажите пароль длиной минимум 6 символов."
+            echo "6. Нажмите **Add secret** и перезапустите workflow."
+            echo ""
+            echo "Сохраните этот пароль у себя: он используется как store password и key password для файла \`release-key.jks\`."
+          } >> "$GITHUB_STEP_SUMMARY"
+          echo "::error title=KEYSTORE_PASSWORD не задан::Добавьте repository secret KEYSTORE_PASSWORD: Settings → Secrets and variables → Actions → New repository secret. Пароль должен быть минимум 6 символов."
+          exit 1
+        fi
+
+        if [ "${#KEYSTORE_PASSWORD}" -lt 6 ]; then
+          {
+            echo "## Пароль KEYSTORE_PASSWORD слишком короткий"
+            echo ""
+            echo "Android keytool требует пароль длиной минимум 6 символов."
+            echo "Обновите secret \`KEYSTORE_PASSWORD\`: **Settings → Secrets and variables → Actions → Repository secrets → KEYSTORE_PASSWORD → Update**."
+          } >> "$GITHUB_STEP_SUMMARY"
+          echo "::error title=KEYSTORE_PASSWORD слишком короткий::Пароль должен быть минимум 6 символов. Обновите secret KEYSTORE_PASSWORD в Settings → Secrets and variables → Actions."
+          exit 1
+        fi
 
     # 1. Генерируем новый Keystore-файл прямо на лету в агенте
     # Внимание: для реального продакшена RuStore этот файл нужно будет сохранить,
@@ -42,9 +83,6 @@ jobs:
           -keypass "$KEYSTORE_PASSWORD" \
           -dname "CN=MyCompany, OU=Dev, O=MyCompany, L=Moscow, S=Russia, C=RU"
 
-    - name: Grant execute permission for gradlew
-      run: chmod +x gradlew
-
     # 2. Собираем и подписываем AAB сгенерированным ключом
     - name: Build and Sign AAB
       env:
@@ -52,15 +90,15 @@ jobs:
       run: |
         STORE_PROP="android.injected.signing.store.password"
         KEY_PROP="android.injected.signing.key.password"
-        ./gradlew bundleRelease \
-          -Pandroid.injected.signing.store.file=release-key.jks \
+        gradle bundleRelease \
+          -Pandroid.injected.signing.store.file=app/release-key.jks \
           -P"$STORE_PROP"="$KEYSTORE_PASSWORD" \
           -Pandroid.injected.signing.key.alias=my-key-alias \
           -P"$KEY_PROP"="$KEYSTORE_PASSWORD"
 
     # 3. Сохраняем подписанный AAB и САМ КЛЮЧ в артефакты (чтобы вы могли его скачать и не потерять)
     - name: Upload Artifacts (AAB and Keystore)
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: signed-android-assets
         path: |
