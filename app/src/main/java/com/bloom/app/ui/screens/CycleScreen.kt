@@ -2,6 +2,7 @@ package com.bloom.app.ui.screens
 
 import android.app.DatePickerDialog
 import androidx.compose.foundation.background
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -19,6 +20,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
@@ -94,7 +96,10 @@ fun CycleScreen() {
         )
         Spacer(Modifier.height(16.dp))
 
-        Card(modifier = Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = PinkPrimaryContainer)) {
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(containerColor = PinkPrimaryContainer, contentColor = TextDark)
+        ) {
             Column(Modifier.padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(if (activePeriod == null) "Начало менструации" else "Менструация продолжается", fontWeight = FontWeight.Bold)
                 Text(
@@ -126,6 +131,8 @@ fun CycleScreen() {
                         }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH)).show()
                     },
                     enabled = activePeriod == null,
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = TextDark),
+                    border = BorderStroke(1.dp, TextDark.copy(alpha = 0.4f)),
                     modifier = Modifier.fillMaxWidth().padding(top = 6.dp)
                 ) { Text("Выбрать дату начала") }
             }
